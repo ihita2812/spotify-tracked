@@ -3,6 +3,7 @@ backend/.venv/
 backend/__pycache__/
 backend/*.pyc
 backend/dev.db
+backend/.spotify_cache
 
 # Node
 frontend/node_modules/
