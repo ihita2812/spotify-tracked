@@ -4,14 +4,23 @@ this is a website meant to be a better version of spotify's annual wrapped.
 <br>
 in progress.
 
-## PHASE - 1 : complete
-login and auth to work - only basic
+## BACKEND : IN PROGRESS
 
-## PHASE - 2
-learn spotipy, create api endpoints
+### PHASE 1 : login and all
+- ~~oauth~~
+- ~~callback~~
+- logout
+### PHASE 2 : finish the stats part
+### PHASE 3 : endpoints for all stats
+### PHASE 4 : stats display
+- images to download, ig story style?
+- graphs and stuff?
 
-## PHASE - 3
-data processing and statistics
+## STATS FUNCTIONING : IN PROGRESS
 
-## PHASE - 4
-haha frontend?
+### PHASE 1 : get raw top artists data and all
+### PHASE 2 : which all stats to display?
+### PHASE 3 : model to map micro genres to seed genres
+
+## FRONTEND : NOTHING YET
+lol?

@@ -1,52 +1,39 @@
 # backend/app/auth/oauth.py
 
-from fastapi import APIRouter, Request, Depends
-from fastapi.responses import RedirectResponse
+from flask import redirect, request
+from flask_restx import Namespace, Resource
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from dotenv import load_dotenv
-import os
+from app.config import Config
 
-load_dotenv()
+pinger = Namespace('', description='Authentication related operations')
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+sp_oauth = SpotifyOAuth(
+            client_id=Config.SPOTIFY_CLIENT_ID,
+            client_secret=Config.SPOTIFY_CLIENT_SECRET,
+            redirect_uri=Config.SPOTIFY_REDIRECT_URI,
+            scope="user-follow-read,user-top-read,user-library-read,user-read-recently-played",
+            show_dialog=True,
+            cache_path=".spotify_cache"
+)
+        
+@pinger.route('/login')
+class Login(Resource):
+    def get(self):
+        auth_url = sp_oauth.get_authorize_url()
+        return redirect(auth_url)
 
-def get_spotify_oauth():
-    return SpotifyOAuth(
-        client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-        client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"),
-        redirect_uri=os.getenv("SPOTIFY_REDIRECT_URI"),
-        scope="user-top-read user-read-recently-played",
-        cache_path=".spotify_cache"
-    )
+@pinger.route('/callback')
+class Callback(Resource):
+    def get(self):
+        code = request.args.get('code')
+        if not code:
+            return {"error": "you didn't allow a connection i'm sad now"}, 200
 
-@router.get("/login")
-def login():
-    sp_oauth = get_spotify_oauth()
-    auth_url = sp_oauth.get_authorize_url()
-    return RedirectResponse(auth_url)
+        token_info = sp_oauth.get_access_token(code)
+        access_token = token_info['access_token']
 
-@router.get("/callback")
-def callback(request: Request):
-    sp_oauth = get_spotify_oauth()
-    code = request.query_params.get("code")
+        sp = spotipy.Spotify(auth=access_token)
 
-    # If Spotify didn't return a code
-    if not code:
-        # Redirect to frontend with failure
-        return RedirectResponse("http://localhost:3000/?success=false")
-
-    try:
-        token_info = sp_oauth.get_access_token(code, as_dict=True)
-        access_token = token_info["access_token"]
-        refresh_token = token_info["refresh_token"]
-
-        # Optionally store tokens in DB here
-
-        # Redirect to frontend with success
-        return RedirectResponse("http://localhost:3000/?success=true")
-
-    except Exception as e:
-        # If token exchange fails
-        print("Error fetching token:", e)
-        return RedirectResponse("http://localhost:3000/?success=false")
+        user_profile = sp.current_user()
+        return {"message": "Authentication successful", "user": user_profile}, 200

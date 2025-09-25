@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [status, setStatus] = useState<"idle" | "cool" | "not cool">("idle");
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  const backendUrl = "http://localhost:5000";
 
   // Redirect user to Spotify login
   const handleLogin = () => {
